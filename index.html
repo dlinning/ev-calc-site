@@ -84,6 +84,35 @@
                 padding-right: 0.5rem;
             }
         }
+
+        /* Style for grouping columns */
+        .grouped-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grouped-header-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .grouped-columns {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .left-border {
+            border-left: 1px solid #e5e7eb;
+        }
+
+        .right-border {
+            border-right: 1px solid #e5e7eb;
+        }
     </style>
 </head>
 
@@ -175,14 +204,37 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="table-header-cell">Connector</th>
-                        <th class="table-header-cell">kWh</th>
-                        <th class="table-header-cell">Charging Time (Hours)</th>
-                        <th class="table-header-cell">Daily Hours Idle</th>
-                        <th class="table-header-cell">% of Annual Charge</th>
-                        <th class="table-header-cell">$ Difference</th>
+                        <th class="table-header-cell left-border">Charge Speed</th>
+                        <th class="table-header-cell">% / Hour</th>
+                        <th class="table-header-cell right-border">mi / Hour</th>
+                        <th class="table-header-cell">Charge Time for Daily miles</th>
+                        <th class="table-header-cell">$ Diff. / Day</th>
                     </tr>
                 </thead>
                 <tbody id="chargingTableBody" class="bg-white divide-y divide-gray-200">
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="text-lg font-semibold mt-8 mb-4 text-center">Recharge Time by Battery %</h2>
+        <div class="table-container">
+            <table class="mx-auto min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="table-header-cell">Connector</th>
+                        <th class="table-header-cell">10%</th>
+                        <th class="table-header-cell">20%</th>
+                        <th class="table-header-cell">30%</th>
+                        <th class="table-header-cell">40%</th>
+                        <th class="table-header-cell">50%</th>
+                        <th class="table-header-cell">60%</th>
+                        <th class="table-header-cell">70%</th>
+                        <th class="table-header-cell">80%</th>
+                        <th class="table-header-cell">90%</th>
+                        <th class="table-header-cell">100%</th>
+                    </tr>
+                </thead>
+                <tbody id="rechargeTimeTableBody" class="bg-white divide-y divide-gray-200">
                 </tbody>
             </table>
         </div>
@@ -256,6 +308,16 @@
             });
         });
 
+        const chargingSpeeds = {
+            '5-15, 12A, 120v': 1.3,
+            '5-20, 16A, 120v': 1.8,
+            '6-20, 16A, 240v': 3.7,
+            '14-30, 20A, 240v': 4.6,
+            '14-50, 30A, 240v': 7.1,
+            '14-50, 32A, 240v': 7.6,
+            'Hardwired 40A, 240v': 9.5,
+            'Hardwired 48A, 240v': 11.4,
+        };
 
         function calculateChargingTimes() {
             const capacity = parseFloat(capacityInput.value);
@@ -276,16 +338,6 @@
             const annualKwhNeeded = kwhNeeded * 365;
             const gasDailyCost = dailyMiles * (gallonPrice / mpg); // Calculate this once
 
-            const chargingSpeeds = {
-                '5-15, 12A, 120v': 1.4,
-                '5-20, 16A, 120v': 1.9,
-                '6-20, 16A, 240v': 3.8,
-                '14-30, 20A, 240v': 4.8,
-                '14-50, 30A, 240v': 7.2,
-                '14-50, 32A, 240v': 7.7,
-                'Hardwired 40A, 240v': 9.6,
-                'Hardwired 48A, 240v': 11.5,
-            };
 
             const chargingTableBody = document.getElementById('chargingTableBody');
             chargingTableBody.innerHTML = ''; // Clear the table body before adding rows
@@ -294,7 +346,8 @@
             for (const connector in chargingSpeeds) {
                 const chargingSpeed = chargingSpeeds[connector];
                 const chargingTime = kwhNeeded / chargingSpeed;
-                const idleHours = Math.max(0, dailyChargeTime - chargingTime);
+                const percentagePerHour = (chargingSpeed / capacity) * 100;
+                const milesPerHour = chargingSpeed * milesPerKwh;
                 const annualCharged = chargingSpeed * dailyChargeTime * 365;
                 const percentageOfAnnual = (annualCharged / annualKwhNeeded) * 100;
 
@@ -305,16 +358,31 @@
                 tableHTML += `
                     <tr>
                         <td class="table-value-cell">${connector}</td>
-                        <td class="table-value-cell">${chargingSpeed.toFixed(1)} kW/h</td>
+                        <td class="table-value-cell left-border">${chargingSpeed.toFixed(1)} kW/h</td>
+                        <td class="table-value-cell">${percentagePerHour.toFixed(2)}%</td>
+                        <td class="table-value-cell right-border">${milesPerHour.toFixed(1)}mi</td>
                         <td class="table-value-cell">${chargingTime.toFixed(2)} hours</td>
-                        <td class="table-value-cell">${idleHours.toFixed(2)} hours</td>
-                        <td class="table-value-cell">${percentageOfAnnual.toFixed(2)}%</td>
                         <td class="table-value-cell">$${dollarDifference.toFixed(2)}/day</td>
                     </tr>
                 `;
             }
             chargingTableBody.innerHTML = tableHTML;
         }
+
+        const rechargeTimeTableBody = document.getElementById('rechargeTimeTableBody');
+        let rechargeTableHTML = '';
+        const capacity = parseFloat(capacityInput.value);
+        for (const connector in chargingSpeeds) {
+            const chargingSpeed = chargingSpeeds[connector];
+            rechargeTableHTML += `<tr><td class="table-value-cell">${connector}</td>`;
+            for (let i = 10; i <= 100; i += 10) {
+                const chargeKwh = capacity * (i / 100);
+                const rechargeTime = chargeKwh / chargingSpeed;
+                rechargeTableHTML += `<td class="table-value-cell">${rechargeTime.toFixed(1)}hrs</td>`;
+            }
+            rechargeTableHTML += `</tr>`;
+        }
+        rechargeTimeTableBody.innerHTML = rechargeTableHTML;
 
         calculateChargingTimes();
     </script>
