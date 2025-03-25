@@ -369,6 +369,7 @@
             chargingTableBody.innerHTML = tableHTML;
         }
 
+function renderTimeTable(){ 
         const rechargeTimeTableBody = document.getElementById('rechargeTimeTableBody');
         let rechargeTableHTML = '';
         const capacity = parseFloat(capacityInput.value);
@@ -383,8 +384,12 @@
             rechargeTableHTML += `</tr>`;
         }
         rechargeTimeTableBody.innerHTML = rechargeTableHTML;
+}
 
+    (()=>{
         calculateChargingTimes();
+        renderTimeTable();
+    })();
     </script>
 </body>
 
