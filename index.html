@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Charging Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .numeric-input {
+            shadow-sm: var(--tw-shadow-sm);
+            focus-ring-indigo-500: var(--tw-ring-indigo-500);
+            focus-border-indigo-500: var(--tw-border-indigo-500);
+            block: block;
+            width: 100%;
+            sm-text-sm: var(--tw-text-sm);
+            border-gray-300: var(--tw-border-gray-300);
+            rounded-md: var(--tw-rounded-md);
+            padding: 1rem;
+        }
+
+        .table-header-cell {
+            padding: 0.25em 0.5em;
+            text-align: center;
+            text-xs: var(--tw-text-xs);
+            font-medium: var(--tw-font-medium);
+            text-gray-500: var(--tw-text-gray-500);
+            uppercase: uppercase;
+            tracking-wider: var(--tw-tracking-wider);
+        }
+
+        .table-value-cell {
+            padding: 0.25em 0.5em;
+            text-align: center;
+            whitespace-nowrap: nowrap;
+        }
+
+        .input-group {}
+
+        .slider-value {
+            font-size: 1.25rem;
+            font-weight: 500;
+            display: inline-block;
+            width: 3rem;
+            text-align: right;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 p-4">
+    <div class="container mx-auto max-w-lg">
+        <h1 class="text-2xl font-bold mb-4 text-center">EV Charging Calculator</h1>
+
+        <form id="evForm" class="space-y-6">
+            <div class="border p-4 rounded-md grid grid-cols-1 gap-4">
+                <h2 class="text-lg font-semibold mb-4">Usage Info</h2>
+
+                <span class="block text-sm font-small text-gray-500">Enter the information for your EV, as well as your normal usage.</span>
+
+                <div class="input-group">
+                    <label for="capacity" class="block text-sm font-medium text-gray-700">Battery kWh Capacity</label>
+                    <div class="mt-1">
+                        <input type="number" id="capacity" name="capacity" class="numeric-input w-full" value="70" min="30" max="250" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="milesPerKwh" class="block text-sm font-medium text-gray-700">Miles/kWh</label>
+                    <div class="mt-1 slider-group">
+                        <span id="milesPerKwhValue" class="slider-value">3.0</span>
+                        <input type="range" id="milesPerKwh" name="milesPerKwh" min="0.5" max="9.9" step="0.1" class="w-full" value="3.0">
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="flex flex-col gap-1">
+                    <span class="block text-sm font-small text-gray-500">Estimate daily miles by taking your current annual miles and divide by <kbd>365</kbd>.</span>
+                    <div class="input-group">
+                        <label for="dailyMiles" class="block text-sm font-medium text-gray-700">Average Daily Miles</label>
+                        <div class="mt-1 slider-group">
+                            <span id="dailyMilesValue" class="slider-value">25</span>
+                            <input type="range" id="dailyMiles" name="dailyMiles" min="5" max="200" class="w-full" value="25">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="dailyChargeTime" class="block text-sm font-medium text-gray-700">Avg. Daily Charge Time (Hours)</label>
+                    <div class="mt-1 slider-group">
+                        <span id="dailyChargeTimeValue" class="slider-value">8</span>
+                        <input type="range" id="dailyChargeTime" name="dailyChargeTime" min="1" max="24" step="0.5" class="w-full" value="12">
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <span class="text-md font-semibold text-gray-700">Annual Miles:<br/><span id="annualMilesValue">9125</span>
+                </span>
+            </div>
+
+            <div class="border p-4 rounded-md grid grid-cols-1 gap-4">
+                <h2 class="text-lg font-semibold mb-4">Price Comparison</h2>
+
+                <span class="block text-sm font-small text-gray-500">This information is used to show the price difference between Gas costs and Charging costs, per day.</span>
+
+                <div class="input-group">
+                    <label for="kwhPrice" class="block text-sm font-medium text-gray-700">$ per kWh</label>
+                    <div class="mt-1">
+                        <input type="number" id="kwhPrice" name="kwhPrice" class="numeric-input w-full" value="0.15" required>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+
+                    <div class="input-group">
+                        <label for="mpg" class="block text-sm font-medium text-gray-700">(Gas) MPG</label>
+                        <div class="mt-1">
+                            <input type="number" id="mpg" name="mpg" min="10" max="60" step="1" class="numeric-input w-full" value="25" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="gallonPrice" class="block text-sm font-medium text-gray-700">$ per gallon</label>
+                        <div class="mt-1">
+                            <input type="number" id="gallonPrice" name="gallonPrice" class="numeric-input w-full" value="3.50" required>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </form>
+    </div>
+
+    <div id="results" class="container mx-auto w-full mt-8">
+        <h2 class="text-lg font-semibold mb-4 text-center">Charging Times</h2>
+        <table class="mx-auto min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="table-header-cell">Connector</th>
+                    <th class="table-header-cell">kWh</th>
+                    <th class="table-header-cell">Charging Time (Hours)</th>
+                    <th class="table-header-cell">Daily Hours Idle</th>
+                    <th class="table-header-cell">% of Annual Charge</th>
+                    <th class="table-header-cell">$ Difference</th>
+                </tr>
+            </thead>
+            <tbody id="chargingTableBody" class="bg-white divide-y divide-gray-200">
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const capacityInput = document.getElementById('capacity');
+        const milesPerKwhInput = document.getElementById('milesPerKwh');
+        const milesPerKwhValueDisplay = document.getElementById('milesPerKwhValue');
+        const dailyMilesInput = document.getElementById('dailyMiles');
+        const dailyMilesValueDisplay = document.getElementById('dailyMilesValue');
+        const dailyChargeTimeInput = document.getElementById('dailyChargeTime');
+        const dailyChargeTimeValueDisplay = document.getElementById('dailyChargeTimeValue');
+        const kwhPriceInput = document.getElementById('kwhPrice');
+        const gallonPriceInput = document.getElementById('gallonPrice');
+        const mpgInput = document.getElementById('mpg');
+        const annualMilesValueDisplay = document.getElementById('annualMilesValue');
+
+        const inputElements = [
+            capacityInput,
+            milesPerKwhInput,
+            dailyMilesInput,
+            dailyChargeTimeInput,
+            kwhPriceInput,
+            gallonPriceInput,
+            mpgInput
+        ];
+
+        function getFormState() {
+            return {
+                capacity: capacityInput.value,
+                milesPerKwh: milesPerKwhInput.value,
+                dailyMiles: dailyMilesInput.value,
+                dailyChargeTime: dailyChargeTimeInput.value,
+                kwhPrice: kwhPriceInput.value,
+                gallonPrice: gallonPriceInput.value,
+                mpg: mpgInput.value,
+            };
+        }
+
+        function setFormState(state) {
+            capacityInput.value = state.capacity;
+            milesPerKwhInput.value = state.milesPerKwh;
+            milesPerKwhValueDisplay.textContent = state.milesPerKwh;
+            dailyMilesInput.value = state.dailyMiles;
+            dailyMilesValueDisplay.textContent = state.dailyMiles;
+            dailyChargeTimeInput.value = state.dailyChargeTime;
+            dailyChargeTimeValueDisplay.textContent = state.dailyChargeTime;
+            kwhPriceInput.value = state.kwhPrice;
+            gallonPriceInput.value = state.gallonPrice;
+            mpgInput.value = state.mpg;
+            const annualMiles = parseFloat(state.dailyMiles) * 365;
+            annualMilesValueDisplay.textContent = annualMiles.toFixed(0);
+        }
+
+        function saveFormState() {
+            const state = getFormState();
+            localStorage.setItem('evFormState', JSON.stringify(state));
+        }
+
+        function loadFormState() {
+            const savedState = localStorage.getItem('evFormState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                setFormState(state);
+            }
+        }
+
+        loadFormState();
+
+        inputElements.forEach(inputElement => {
+            inputElement.addEventListener('input', () => {
+                saveFormState();
+                calculateChargingTimes();
+                if (inputElement === milesPerKwhInput) {
+                    milesPerKwhValueDisplay.textContent = parseFloat(milesPerKwhInput.value).toFixed(1);
+                } else if (inputElement === dailyMilesInput) {
+                    dailyMilesValueDisplay.textContent = parseFloat(dailyMilesInput.value).toFixed(0);
+                    const annualMiles = parseFloat(dailyMilesInput.value) * 365;
+                    annualMilesValueDisplay.textContent = annualMiles.toFixed(0);
+                } else if (inputElement === dailyChargeTimeInput) {
+                    dailyChargeTimeValueDisplay.textContent = parseFloat(dailyChargeTimeInput.value).toFixed(1);
+                }
+            });
+        });
+
+
+        function calculateChargingTimes() {
+            const capacity = parseFloat(capacityInput.value);
+            const milesPerKwh = parseFloat(milesPerKwhInput.value);
+            const dailyMiles = parseFloat(dailyMilesInput.value);
+            const dailyChargeTime = parseFloat(dailyChargeTimeInput.value);
+            const kwhPrice = parseFloat(kwhPriceInput.value);
+            const gallonPrice = parseFloat(gallonPriceInput.value);
+            const mpg = parseFloat(mpgInput.value);
+            const annualMiles = dailyMiles * 365;
+            annualMilesValueDisplay.textContent = annualMiles.toFixed(0);
+
+            if (isNaN(capacity) || isNaN(milesPerKwh) || isNaN(dailyMiles) || isNaN(dailyChargeTime) || isNaN(kwhPrice) || isNaN(gallonPrice) || isNaN(mpg)) {
+                return;
+            }
+
+            const kwhNeeded = dailyMiles / milesPerKwh;
+            const annualKwhNeeded = kwhNeeded * 365;
+            const gasDailyCost = dailyMiles * (gallonPrice / mpg); // Calculate this once
+
+            const chargingSpeeds = {
+                '5-15, 12A, 120v': 1.4,
+                '5-20, 16A, 120v': 1.9,
+                '6-20, 16A, 240v': 3.8,
+                '14-30, 20A, 240v': 4.8,
+                '14-50, 30A, 240v': 7.2,
+                '14-50, 32A, 240v': 7.7,
+                'Hardwired 40A, 240v': 9.6,
+                'Hardwired 48A, 240v': 11.5,
+            };
+
+            const chargingTableBody = document.getElementById('chargingTableBody');
+            chargingTableBody.innerHTML = ''; // Clear the table body before adding rows
+
+            let tableHTML = '';
+            for (const connector in chargingSpeeds) {
+                const chargingSpeed = chargingSpeeds[connector];
+                const chargingTime = kwhNeeded / chargingSpeed;
+                const idleHours = Math.max(0, dailyChargeTime - chargingTime);
+                const annualCharged = chargingSpeed * dailyChargeTime * 365;
+                const percentageOfAnnual = (annualCharged / annualKwhNeeded) * 100;
+
+                const evDailyCost = kwhNeeded * kwhPrice;
+                const dollarDifference = evDailyCost - gasDailyCost;
+                const percentageDifference = (dollarDifference / gasDailyCost) * 100;
+
+                tableHTML += `
+                    <tr>
+                        <td class="table-value-cell">${connector}</td>
+                        <td class="table-value-cell">${chargingSpeed.toFixed(1)} kW/h</td>
+                        <td class="table-value-cell">${chargingTime.toFixed(2)} hours</td>
+                        <td class="table-value-cell">${idleHours.toFixed(2)} hours</td>
+                        <td class="table-value-cell">${percentageOfAnnual.toFixed(2)}%</td>
+                        <td class="table-value-cell">$${dollarDifference.toFixed(2)}/day</td>
+                    </tr>
+                `;
+            }
+            chargingTableBody.innerHTML = tableHTML;
+        }
+
+        calculateChargingTimes();
+    </script>
+</body>
+
+</html>
