@@ -8,31 +8,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .numeric-input {
-            shadow-sm: var(--tw-shadow-sm);
-            focus-ring-indigo-500: var(--tw-ring-indigo-500);
-            focus-border-indigo-500: var(--tw-border-indigo-500);
-            block: block;
-            width: 100%;
-            sm-text-sm: var(--tw-text-sm);
-            border-gray-300: var(--tw-border-gray-300);
-            rounded-md: var(--tw-rounded-md);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            outline: none;
+            --tw-ring-color: #6366f1;
+            --tw-ring-offset-width: 0px;
+            --tw-ring-shadow: 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-color);
+            border-color: #d1d5db;
+            border-radius: 0.375rem;
             padding: 1rem;
+            display: block;
+            width: 100%;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+
+        .numeric-input:focus {
+            --tw-ring-offset-shadow: var(--tw-shadow-sm);
+            --tw-ring-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5);
+            border-color: #6366f1;
         }
 
         .table-header-cell {
-            padding: 0.25em 0.5em;
+            padding: 0.5rem 0.75rem;
             text-align: center;
-            text-xs: var(--tw-text-xs);
-            font-medium: var(--tw-font-medium);
-            text-gray-500: var(--tw-text-gray-500);
-            uppercase: uppercase;
-            tracking-wider: var(--tw-tracking-wider);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .table-value-cell {
-            padding: 0.25em 0.5em;
+            padding: 0.25rem 0.5rem;
             text-align: center;
-            whitespace-nowrap: nowrap;
+            white-space: nowrap;
         }
 
         .input-group {}
@@ -49,6 +58,31 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+        }
+
+        /* Add this media query for mobile devices */
+        @media (max-width: 768px) {
+            .table-container {
+                overflow-x: auto;
+                /* Enable horizontal scrolling */
+                -webkit-overflow-scrolling: touch;
+                /* Smooth scrolling for iOS */
+                margin-left: -1rem;
+                margin-right: -1rem;
+            }
+
+            .table-container table {
+                width: auto;
+                /* Make the table wider than the container */
+                min-width: 100%;
+            }
+
+            .table-header-cell,
+            .table-value-cell {
+                white-space: nowrap;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
         }
     </style>
 </head>
@@ -72,9 +106,8 @@
 
                 <div class="input-group">
                     <label for="milesPerKwh" class="block text-sm font-medium text-gray-700">Miles/kWh</label>
-                    <div class="mt-1 slider-group">
-                        <span id="milesPerKwhValue" class="slider-value">3.0</span>
-                        <input type="range" id="milesPerKwh" name="milesPerKwh" min="0.5" max="9.9" step="0.1" class="w-full" value="3.0">
+                    <div class="mt-1">
+                        <input type="number" id="milesPerKwh" name="milesPerKwh" class="numeric-input w-full" value="3.0" min="0.5" max="9.9" step="0.1" required>
                     </div>
                 </div>
 
@@ -84,18 +117,16 @@
                     <span class="block text-sm font-small text-gray-500">Estimate daily miles by taking your current annual miles and divide by <kbd>365</kbd>.</span>
                     <div class="input-group">
                         <label for="dailyMiles" class="block text-sm font-medium text-gray-700">Average Daily Miles</label>
-                        <div class="mt-1 slider-group">
-                            <span id="dailyMilesValue" class="slider-value">25</span>
-                            <input type="range" id="dailyMiles" name="dailyMiles" min="5" max="200" class="w-full" value="25">
+                        <div class="mt-1">
+                            <input type="number" id="dailyMiles" name="dailyMiles" class="numeric-input w-full" value="25" min="5" max="200" required>
                         </div>
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="dailyChargeTime" class="block text-sm font-medium text-gray-700">Avg. Daily Charge Time (Hours)</label>
-                    <div class="mt-1 slider-group">
-                        <span id="dailyChargeTimeValue" class="slider-value">8</span>
-                        <input type="range" id="dailyChargeTime" name="dailyChargeTime" min="1" max="24" step="0.5" class="w-full" value="12">
+                    <div class="mt-1">
+                        <input type="number" id="dailyChargeTime" name="dailyChargeTime" class="numeric-input w-full" value="12" min="1" max="24" step="0.5" required>
                     </div>
                 </div>
             </div>
@@ -139,29 +170,28 @@
 
     <div id="results" class="container mx-auto w-full mt-8">
         <h2 class="text-lg font-semibold mb-4 text-center">Charging Times</h2>
-        <table class="mx-auto min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="table-header-cell">Connector</th>
-                    <th class="table-header-cell">kWh</th>
-                    <th class="table-header-cell">Charging Time (Hours)</th>
-                    <th class="table-header-cell">Daily Hours Idle</th>
-                    <th class="table-header-cell">% of Annual Charge</th>
-                    <th class="table-header-cell">$ Difference</th>
-                </tr>
-            </thead>
-            <tbody id="chargingTableBody" class="bg-white divide-y divide-gray-200">
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="mx-auto min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="table-header-cell">Connector</th>
+                        <th class="table-header-cell">kWh</th>
+                        <th class="table-header-cell">Charging Time (Hours)</th>
+                        <th class="table-header-cell">Daily Hours Idle</th>
+                        <th class="table-header-cell">% of Annual Charge</th>
+                        <th class="table-header-cell">$ Difference</th>
+                    </tr>
+                </thead>
+                <tbody id="chargingTableBody" class="bg-white divide-y divide-gray-200">
+                </tbody>
+            </table>
+        </div>
     </div>
     <script>
         const capacityInput = document.getElementById('capacity');
         const milesPerKwhInput = document.getElementById('milesPerKwh');
-        const milesPerKwhValueDisplay = document.getElementById('milesPerKwhValue');
         const dailyMilesInput = document.getElementById('dailyMiles');
-        const dailyMilesValueDisplay = document.getElementById('dailyMilesValue');
         const dailyChargeTimeInput = document.getElementById('dailyChargeTime');
-        const dailyChargeTimeValueDisplay = document.getElementById('dailyChargeTimeValue');
         const kwhPriceInput = document.getElementById('kwhPrice');
         const gallonPriceInput = document.getElementById('gallonPrice');
         const mpgInput = document.getElementById('mpg');
@@ -192,11 +222,9 @@
         function setFormState(state) {
             capacityInput.value = state.capacity;
             milesPerKwhInput.value = state.milesPerKwh;
-            milesPerKwhValueDisplay.textContent = state.milesPerKwh;
             dailyMilesInput.value = state.dailyMiles;
             dailyMilesValueDisplay.textContent = state.dailyMiles;
             dailyChargeTimeInput.value = state.dailyChargeTime;
-            dailyChargeTimeValueDisplay.textContent = state.dailyChargeTime;
             kwhPriceInput.value = state.kwhPrice;
             gallonPriceInput.value = state.gallonPrice;
             mpgInput.value = state.mpg;
@@ -223,15 +251,8 @@
             inputElement.addEventListener('input', () => {
                 saveFormState();
                 calculateChargingTimes();
-                if (inputElement === milesPerKwhInput) {
-                    milesPerKwhValueDisplay.textContent = parseFloat(milesPerKwhInput.value).toFixed(1);
-                } else if (inputElement === dailyMilesInput) {
-                    dailyMilesValueDisplay.textContent = parseFloat(dailyMilesInput.value).toFixed(0);
-                    const annualMiles = parseFloat(dailyMilesInput.value) * 365;
-                    annualMilesValueDisplay.textContent = annualMiles.toFixed(0);
-                } else if (inputElement === dailyChargeTimeInput) {
-                    dailyChargeTimeValueDisplay.textContent = parseFloat(dailyChargeTimeInput.value).toFixed(1);
-                }
+                const annualMiles = parseFloat(dailyMilesInput.value) * 365;
+                annualMilesValueDisplay.textContent = annualMiles.toFixed(0);
             });
         });
 
