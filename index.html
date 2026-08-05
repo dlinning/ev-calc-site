@@ -122,12 +122,6 @@
                     </div>
                 </div>
             </div>
-
-			<div class="mt-4">
-				<button type="submit" id="calculateBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-all duration-200 cursor-pointer text-base text-center flex items-center justify-center gap-2">
-					<span>See The Savings</span>
-				</button>
-			</div>
         </form>
     </div>
 
@@ -217,7 +211,6 @@
 
         // Cache DOM input elements
         const form = document.getElementById('evForm');
-        const calculateBtn = document.getElementById('calculateBtn');
         const inputElements = {
             capacity: document.getElementById('capacity'),
             milesPerKwh: document.getElementById('milesPerKwh'),
@@ -413,21 +406,17 @@
             displayElements.rechargeTimeTableBody.innerHTML = rechargeTableHTML;
         }
 
-        // Listen to form submit / "See The Savings" button click
+        // Prevent default form submit on Enter key press
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            saveFormState();
-            performCalculations();
-
-            // Smooth scroll to results for mobile user feedback
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
         });
 
-        // Input listeners update preview labels & auto-save state
+        // Input listeners update calculations live & save state on every field edit
         for (const key in inputElements) {
             inputElements[key].addEventListener('input', () => {
                 updateDailyMilesPreview();
                 saveFormState();
+                performCalculations();
             });
         }
 
