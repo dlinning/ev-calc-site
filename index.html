@@ -46,19 +46,20 @@
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             width: 100%;
+            display: block;
         }
 
         .table-container table {
             width: 100%;
-            min-width: 580px;
+            white-space: nowrap;
         }
 
         @media (max-width: 768px) {
             .table-header-cell,
             .table-value-cell {
                 white-space: nowrap;
-                padding-left: 0.5rem;
-                padding-right: 0.5rem;
+                padding-left: 0.625rem;
+                padding-right: 0.625rem;
             }
         }
 
@@ -154,16 +155,16 @@
         </div>
 
         <!-- Charging Times Table -->
-        <h2 class="text-lg font-bold text-slate-800 mb-3 text-center">Charging Speed & Daily Recharge</h2>
-        <div class="table-container bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
-            <table class="mx-auto min-w-full divide-y divide-slate-200">
+        <h2 class="text-xl font-bold text-slate-800 mb-3 text-center">Charging Speed & Daily Recharge</h2>
+        <div class="table-container bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto mb-6">
+            <table class="divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
                         <th class="table-header-cell text-left pl-4">Outlet Type</th>
                         <th class="table-header-cell left-border">Charge Speed</th>
                         <th class="table-header-cell">% / Hour</th>
                         <th class="table-header-cell right-border">mi / Hour</th>
-                        <th class="table-header-cell">Charge Time for Daily Miles</th>
+                        <th class="table-header-cell">Daily Charge Time</th>
                     </tr>
                 </thead>
                 <tbody id="chargingTableBody" class="bg-white divide-y divide-slate-200">
@@ -172,19 +173,19 @@
         </div>
 
 		<div class="text-center mb-8">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs text-slate-500">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-md text-slate-500">
                 <span>Daily Battery Need:</span>
-                <span id="dailyPctNeededDisplay" class="font-semibold text-slate-700">13.04% (9.1 kWh)</span>
+                <span id="dailyPctNeededDisplay" class="font-semibold text-slate-800">13.04% (9.1 kWh)</span>
             </div>
         </div>
 
         <!-- Recharge Time by Battery % -->
-        <h2 class="text-lg font-bold text-slate-800 mb-3 text-center">Full Recharge Time by Battery %</h2>
-        <div class="table-container bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <table class="mx-auto min-w-full divide-y divide-slate-200 text-xs">
+        <h2 class="text-xl font-bold text-slate-800 mb-3 text-center">Full Recharge Time by Battery %</h2>
+        <div class="table-container bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+            <table class="divide-y divide-slate-200 text-md">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="table-header-cell text-left pl-4">Outlet Type</th>
+                        <th class="table-header-cell text-left pl-2">Outlet Type</th>
                         <th class="table-header-cell">20%</th>
                         <th class="table-header-cell">40%</th>
                         <th class="table-header-cell">60%</th>
